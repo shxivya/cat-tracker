@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CAT 2026 Exam Tracker — Study sessions, mocks, topics, errors, and more.">
+  <title>CAT 2026 Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="app-root">
+    <div id="loading-screen" class="loading-screen">Loading your tracker…</div>
+    <div id="main-layout" class="main-layout" style="display:none">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-title">CAT 2026</div>
+          <div class="brand-sub">Tracker</div>
+        </div>
+        <div class="phase-pill">
+          <div class="phase-label">Current phase</div>
+          <div class="phase-name" id="phase-name">Foundation</div>
+          <div class="phase-bar-track">
+            <div class="phase-bar-fill" id="phase-bar-fill"></div>
+          </div>
+        </div>
+        <nav class="sidebar-nav" id="sidebar-nav">
+          <button class="nav-btn active" data-tab="dashboard"><span class="nav-icon">⬡</span> Dashboard</button>
+          <button class="nav-btn" data-tab="studylog"><span class="nav-icon">✎</span> Study Log</button>
+          <button class="nav-btn" data-tab="mocks"><span class="nav-icon">◎</span> Mocks</button>
+          <button class="nav-btn" data-tab="topics"><span class="nav-icon">☑</span> Topics</button>
+          <button class="nav-btn" data-tab="errors"><span class="nav-icon">△</span> Error Log</button>
+          <button class="nav-btn" data-tab="books"><span class="nav-icon">📚</span> Books</button>
+          <button class="nav-btn" data-tab="notes"><span class="nav-icon">✦</span> Notes</button>
+          <button class="nav-btn" data-tab="goals"><span class="nav-icon">◈</span> Goals & Tools</button>
+        </nav>
+        <div class="days-left-box">
+          <div>
+            <div class="days-left-number" id="days-left-number">0</div>
+            <div class="days-left-label">days left</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content -->
+      <main class="content">
+
+        <!-- ═══ DASHBOARD ═══ -->
+        <section class="tab-panel active" id="panel-dashboard">
+          <div id="quote-banner-wrap"></div>
+          <div class="page-greeting">
+            <h1 id="greeting-text">Good morning 👋</h1>
+            <p class="greeting-date" id="greeting-date"></p>
+          </div>
+          <div class="stats-row" id="dashboard-stats-row"></div>
+
+          <!-- Weekly goal -->
+          <div class="card weekly-goal-card">
+            <div class="weekly-goal-row">
+              <span class="weekly-goal-title">📅 Weekly Study Goal</span>
+              <div class="weekly-goal-edit">
+                Target: <input type="number" class="weekly-goal-input" id="weekly-goal-input" min="1" max="100"
+                  value="25"> hrs
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="goal-bar-track" style="flex:1">
+                <div class="goal-bar-fill" id="goal-bar-fill" style="width:0%"></div>
+              </div>
+              <span class="goal-pct" id="goal-pct">0%</span>
+              <span style="font-size:12px;color:var(--text-2)" id="goal-sub">0 / 25 hrs this week</span>
+            </div>
+          </div>
+
+          <!-- Phase countdowns -->
+          <div class="phase-countdown-grid" id="phase-countdown-grid"></div>
+
+          <div class="two-col">
+            <div class="card">
+              <div class="section-header">Topic coverage</div>
+              <div class="rings-row" id="topic-rings"></div>
+            </div>
+            <div class="card">
+              <div class="section-header">Time split (all time)</div>
+              <div id="time-split-bars"></div>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <div class="card">
+              <div class="section-header">Last mock</div>
+              <div id="last-mock-content"></div>
+            </div>
+            <div class="card">
+              <div class="section-header">Recent study log</div>
+              <div id="recent-logs-content"></div>
+            </div>
+          </div>
+
+          <!-- College mapper -->
+          <div class="card">
+            <div class="section-header">Percentile → College Map</div>
+            <div id="college-mapper"></div>
+          </div>
+        </section>
+
+        <!-- ═══ STUDY LOG ═══ -->
+        <section class="tab-panel" id="panel-studylog">
+          <h2 class="page-title">Study Log</h2>
+          <p class="page-subtitle">Track every session. Consistency is everything.</p>
+          <div class="card form-card">
+            <div class="section-header">Log today's session</div>
+            <div class="form-grid-4">
+              <div class="form-group"><label>Date</label><input type="date" id="log-date"></div>
+              <div class="form-group"><label class="label-qa">QA (mins)</label><input type="number" min="0"
+                  placeholder="0" id="log-qa"></div>
+              <div class="form-group"><label class="label-varc">VARC (mins)</label><input type="number" min="0"
+                  placeholder="0" id="log-varc"></div>
+              <div class="form-group"><label class="label-dilr">DILR (mins)</label><input type="number" min="0"
+                  placeholder="0" id="log-dilr"></div>
+            </div>
+            <div class="form-group full-width"><label>Notes (optional)</label><input type="text"
+                placeholder="What did you cover today? Any wins?" id="log-notes"></div>
+            <button class="btn btn-primary" id="btn-add-log">+ Log session</button>
+          </div>
+          <div class="card">
+            <div class="section-header" id="log-count-header">All sessions (0)</div>
+            <div id="study-log-list"></div>
+          </div>
+        </section>
+
+        <!-- ═══ MOCKS ═══ -->
+        <section class="tab-panel" id="panel-mocks">
+          <h2 class="page-title">Mock Tracker</h2>
+          <p class="page-subtitle">Log every mock, track every percentile. Analysis is the real work.</p>
+          <div class="stats-row mock-stats-row" id="mock-stats-row" style="display:none"></div>
+
+          <!-- Percentile chart -->
+          <div class="card" id="mock-chart-card" style="display:none;margin-bottom:16px">
+            <div class="section-header">Percentile Trend</div>
+            <div class="chart-wrap"><canvas id="percentile-chart" height="180"></canvas></div>
+          </div>
+
+          <div class="card form-card">
+            <div class="section-header">Log a mock</div>
+            <div class="form-grid-2">
+              <div class="form-group"><label>Date</label><input type="date" id="mock-date"></div>
+              <div class="form-group"><label>Mock name / series</label><input type="text"
+                  placeholder="e.g. AIMCAT 2026-01" id="mock-name"></div>
+            </div>
+            <div class="form-grid-5">
+              <div class="form-group"><label class="label-qa">QA score</label><input type="number" placeholder="0"
+                  id="mock-qa"></div>
+              <div class="form-group"><label class="label-varc">VARC score</label><input type="number" placeholder="0"
+                  id="mock-varc"></div>
+              <div class="form-group"><label class="label-dilr">DILR score</label><input type="number" placeholder="0"
+                  id="mock-dilr"></div>
+              <div class="form-group"><label class="label-dark">Total score</label><input type="number" placeholder="0"
+                  id="mock-total"></div>
+              <div class="form-group"><label class="label-varc">Percentile</label><input type="number" placeholder="0"
+                  id="mock-percentile"></div>
+            </div>
+            <div class="form-group full-width"><label>Analysis notes</label><input type="text"
+                placeholder="Key takeaways from this mock..." id="mock-notes"></div>
+            <button class="btn btn-primary" id="btn-add-mock">+ Log mock</button>
+          </div>
+          <div class="card">
+            <div class="section-header">Mock history</div>
+            <div id="mock-history-list"></div>
+          </div>
+        </section>
+
+        <!-- ═══ TOPICS / REVISION SCHEDULER ═══ -->
+        <section class="tab-panel" id="panel-topics">
+          <h2 class="page-title">Revision Scheduler</h2>
+          <p class="page-subtitle">Track every topic from Not Started → Mastered. Use flags to prioritize what needs
+            attention now.</p>
+
+          <!-- Filter bar -->
+          <div class="rev-filter-bar">
+            <div class="rev-filter-row">
+              <span class="rev-filter-label">Status</span>
+              <div id="rev-status-filters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            </div>
+            <div class="rev-filter-row">
+              <span class="rev-filter-label">Flags</span>
+              <button class="rev-flag-pill" id="filter-flag-revisit" onclick="toggleFlagFilter('revisit')">🔴 Revisit
+                Today</button>
+              <button class="rev-flag-pill" id="filter-flag-highweight" onclick="toggleFlagFilter('highWeight')">📌 High
+                Weightage</button>
+              <button class="rev-quickview" id="btn-revisit-all" onclick="toggleAllRevisit()">🔴 All Revisit
+                Today</button>
+            </div>
+          </div>
+
+          <!-- Section tabs (hidden in all-revisit mode) -->
+          <div class="rev-section-tabs" id="rev-section-tabs"></div>
+
+          <!-- Section summary -->
+          <div id="rev-section-summary"></div>
+
+          <!-- Topic cards / all-revisit list -->
+          <div id="rev-topic-grid"></div>
+        </section>
+
+        <!-- ═══ ERROR LOG ═══ -->
+        <section class="tab-panel" id="panel-errors">
+          <h2 class="page-title">Error Log</h2>
+          <p class="page-subtitle">Track every mistake. Patterns in your errors = your roadmap to improvement.</p>
+          <div class="stats-row error-stats-row" id="error-stats-row" style="display:none"></div>
+          <div class="card form-card">
+            <div class="section-header">Log an error</div>
+            <div class="form-grid-4">
+              <div class="form-group"><label>Date</label><input type="date" id="error-date"></div>
+              <div class="form-group"><label>Section</label><select id="error-section">
+                  <option>QA</option>
+                  <option>VARC</option>
+                  <option>DILR</option>
+                </select></div>
+              <div class="form-group"><label>Error type</label><select id="error-type">
+                  <option>Concept gap</option>
+                  <option>Silly error</option>
+                  <option>Time pressure</option>
+                  <option>Misread question</option>
+                  <option>Calculation error</option>
+                </select></div>
+              <div class="form-group"><label>Topic / question area</label><input type="text"
+                  placeholder="e.g. Time & Work" id="error-topic"></div>
+            </div>
+            <div class="form-group full-width"><label>What went wrong?</label><input type="text"
+                placeholder="Describe the mistake and what the correct approach was" id="error-description"></div>
+            <button class="btn btn-error" id="btn-add-error">+ Log error</button>
+          </div>
+          <div class="card">
+            <div class="section-header" id="error-count-header">All errors (0)</div>
+            <div id="error-log-list"></div>
+          </div>
+        </section>
+
+        <!-- ═══ BOOKS ═══ -->
+        <section class="tab-panel" id="panel-books">
+          <h2 class="page-title">Book Progress</h2>
+          <p class="page-subtitle">Chapter-by-chapter tracker for Arun Sharma &amp; Oswaal. Click a chapter to cycle: ○
+            → In Progress → ✓ Done</p>
+          <div class="book-tabs" id="book-tabs"></div>
+          <div class="card" id="book-content"></div>
+        </section>
+
+        <!-- ═══ NOTES ═══ -->
+        <section class="tab-panel" id="panel-notes">
+          <h2 class="page-title">Study Notes</h2>
+          <p class="page-subtitle">Freeform notes per topic or mock — your personal study journal.</p>
+          <div class="card form-card">
+            <div class="section-header">Add a note</div>
+            <div class="form-grid-3">
+              <div class="form-group"><label>Title</label><input type="text" placeholder="e.g. P&C key formulas"
+                  id="note-title"></div>
+              <div class="form-group"><label>Section tag</label><select id="note-section">
+                  <option>QA</option>
+                  <option>VARC</option>
+                  <option>DILR</option>
+                  <option>Mocks</option>
+                  <option>General</option>
+                </select></div>
+              <div class="form-group"><label>Date</label><input type="date" id="note-date"></div>
+            </div>
+            <div class="form-group full-width"><label>Note</label><textarea id="note-body"
+                placeholder="Write anything — key formulas, strategy notes, mock analysis, revision reminders…"></textarea>
+            </div>
+            <button class="btn btn-primary" id="btn-add-note">+ Add note</button>
+          </div>
+          <div class="notes-search"><input type="text" placeholder="🔍  Search notes…" id="notes-search-input"></div>
+          <div id="notes-list"></div>
+        </section>
+
+        <!-- ═══ GOALS & TOOLS ═══ -->
+        <section class="tab-panel" id="panel-goals">
+          <h2 class="page-title">Goals &amp; Tools</h2>
+          <p class="page-subtitle">Target score calculator, attempt strategy planner, and revision scheduler.</p>
+
+          <div class="two-col" style="margin-bottom:16px">
+            <!-- Target score calculator -->
+            <div class="card">
+              <div class="section-header">Target Score Calculator</div>
+              <p style="font-size:12px;color:var(--text-2);margin-bottom:14px">Enter your target percentile — get the
+                approximate raw score you need per section.</p>
+              <div class="calc-row">
+                <span class="calc-label">Overall %ile</span>
+                <input type="number" class="calc-input" id="calc-overall" placeholder="e.g. 99" min="0" max="100">
+              </div>
+              <button class="btn btn-primary" id="btn-calc" style="margin-bottom:12px">Calculate</button>
+              <div class="calc-result" id="calc-result" style="display:none"></div>
+            </div>
+
+            <!-- Attempt strategy -->
+            <div class="card">
+              <div class="section-header">Attempt Strategy Planner</div>
+              <p style="font-size:12px;color:var(--text-2);margin-bottom:14px">Note your planned attempt order and time
+                per slot for each section.</p>
+              <div id="strategy-form"></div>
+              <button class="btn btn-primary" id="btn-save-strategy" style="margin-top:4px">Save strategy</button>
+            </div>
+          </div>
+
+          <!-- Revision scheduler summary -->
+          <div class="card">
+            <div class="section-header">Revision Scheduler</div>
+            <p style="font-size:12px;color:var(--text-2);margin-bottom:14px">Topics marked <b
+                style="color:var(--coral)">Needs Revision</b> across all sections:</p>
+            <div id="revision-list"></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+
+</html>
