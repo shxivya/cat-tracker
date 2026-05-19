@@ -1,4 +1,4 @@
-# CAT 2026 Tracker 📚
+# CAT Tracker 📚
 
 A minimal and aesthetic productivity dashboard built for CAT preparation.
 
