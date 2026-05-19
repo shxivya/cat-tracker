@@ -88,7 +88,16 @@ const S = {
 //Storage
 function ls(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null } catch { return null } }
 function ss(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch { } }
-function persist() { ss("cat:logs", S.logs); ss("cat:mocks", S.mocks); ss("cat:topic_status", S.topicStatus); ss("cat:topic_flags", S.topicFlags); ss("cat:errors", S.errors); ss("cat:weeklyGoal", S.weeklyGoal); ss("cat:mockChecklists", S.mockChecklists); ss("cat:books", S.bookProgress); ss("cat:notes", S.notes); ss("cat:strategy", S.strategy); }
+function persist() {
+  ss("cat:logs", S.logs); ss("cat:mocks", S.mocks); ss("cat:topic_status", S.topicStatus);
+  ss("cat:topic_flags", S.topicFlags); ss("cat:errors", S.errors); ss("cat:weeklyGoal", S.weeklyGoal);
+  ss("cat:mockChecklists", S.mockChecklists); ss("cat:books", S.bookProgress);
+  ss("cat:notes", S.notes); ss("cat:strategy", S.strategy);
+  // UI preferences
+  ss("cat:activeTab", S.activeTab); ss("cat:activeTopicSection", S.activeTopicSection);
+  ss("cat:activeBookTab", S.activeBookTab); ss("cat:quoteDismissed", S.quoteDismissed);
+  ss("cat:revFilters", S.revFilters); ss("cat:revAllRevisit", S.revAllRevisit);
+}
 
 //Helpers
 const $ = id => document.getElementById(id);
@@ -116,6 +125,7 @@ function flashBtn(id, defaultText, cls) {
 
 //Init
 document.addEventListener("DOMContentLoaded", () => {
+  // Restore study data
   S.logs = ls("cat:logs") || []; S.mocks = ls("cat:mocks") || [];
   const oldTopics = ls("cat:topics") || {};
   S.topicStatus = ls("cat:topic_status") || {};
@@ -128,10 +138,28 @@ document.addEventListener("DOMContentLoaded", () => {
   S.mockChecklists = ls("cat:mockChecklists") || {}; S.bookProgress = ls("cat:books") || ls("cat:bookProgress") || {};
   S.notes = ls("cat:notes") || []; S.strategy = ls("cat:strategy") || { qa: { order: "", time: "" }, varc: { order: "", time: "" }, dilr: { order: "", time: "" } };
 
+  // Restore UI preferences / settings
+  S.activeTab = ls("cat:activeTab") || "dashboard";
+  S.activeTopicSection = ls("cat:activeTopicSection") || "QA";
+  S.activeBookTab = ls("cat:activeBookTab") || "qa_sharma";
+  const savedQuote = ls("cat:quoteDismissed");
+  S.quoteDismissed = savedQuote === true;
+  const savedRevFilters = ls("cat:revFilters");
+  if (savedRevFilters && typeof savedRevFilters === "object") {
+    S.revFilters = { statuses: Array.isArray(savedRevFilters.statuses) ? savedRevFilters.statuses : [], revisit: !!savedRevFilters.revisit, highWeight: !!savedRevFilters.highWeight };
+  }
+  const savedRevAll = ls("cat:revAllRevisit");
+  S.revAllRevisit = savedRevAll === true;
+
   $("log-date").value = today(); $("mock-date").value = today(); $("error-date").value = today(); $("note-date").value = today();
   $("weekly-goal-input").value = S.weeklyGoal;
 
   $("loading-screen").style.display = "none"; $("main-layout").style.display = "flex";
+
+  // Restore active tab in the DOM before rendering
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  const targetPanel = $("panel-" + S.activeTab);
+  if (targetPanel) targetPanel.classList.add("active");
 
   setupSidebar(); setupListeners(); renderAll();
 });
@@ -147,9 +175,12 @@ function setupSidebar() {
   if (days < 30) $("days-left-number").classList.add("urgent");
 
   document.querySelectorAll(".nav-btn").forEach(btn => {
+    // Apply active state from restored activeTab
+    btn.classList.remove("active"); btn.style.borderLeftColor = "transparent";
     if (btn.dataset.tab === S.activeTab) { btn.classList.add("active"); btn.style.borderLeftColor = ph.color; }
     btn.addEventListener("click", () => {
       S.activeTab = btn.dataset.tab;
+      persist(); // Save active tab preference
       document.querySelectorAll(".nav-btn").forEach(b => { b.classList.remove("active"); b.style.borderLeftColor = "transparent"; });
       btn.classList.add("active"); btn.style.borderLeftColor = ph.color;
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
@@ -275,7 +306,7 @@ function renderDashboard() {
     ${!avgPct ? `<div style="font-size:11px;color:var(--text-3);margin-top:8px;text-align:center">Log mock percentiles to see your college map</div>` : ""}`;
 }
 
-function dismissQuote() { S.quoteDismissed = true; $("quote-banner-wrap").innerHTML = ""; }
+function dismissQuote() { S.quoteDismissed = true; persist(); $("quote-banner-wrap").innerHTML = ""; }
 
 function calcStreak() {
   if (!S.logs.length) return 0;
@@ -396,14 +427,14 @@ const REV_SECS = {
   VARC: { topics: VARC_TOPICS, prefix: "varc_", color: "#FB923C" },
 };
 
-function setTopicSection(s) { S.activeTopicSection = s; renderRevScheduler(); }
-function toggleAllRevisit() { S.revAllRevisit = !S.revAllRevisit; renderRevScheduler(); }
+function setTopicSection(s) { S.activeTopicSection = s; persist(); renderRevScheduler(); }
+function toggleAllRevisit() { S.revAllRevisit = !S.revAllRevisit; persist(); renderRevScheduler(); }
 function toggleStatusFilter(id) {
   const i = S.revFilters.statuses.indexOf(id);
   if (i > -1) S.revFilters.statuses.splice(i, 1); else S.revFilters.statuses.push(id);
-  renderRevScheduler();
+  persist(); renderRevScheduler();
 }
-function toggleFlagFilter(flag) { S.revFilters[flag] = !S.revFilters[flag]; renderRevScheduler(); }
+function toggleFlagFilter(flag) { S.revFilters[flag] = !S.revFilters[flag]; persist(); renderRevScheduler(); }
 function setTopicStatus(key, val) { S.topicStatus[key] = val; persist(); renderRevScheduler(); renderDashboard(); }
 function toggleTopicFlag(key, flag) {
   if (!S.topicFlags[key]) S.topicFlags[key] = {};
@@ -514,7 +545,7 @@ function renderErrors() {
 }
 
 // -- Books ---------------------------------------------------------------------
-function setBookTab(t) { S.activeBookTab = t; renderBooks(); }
+function setBookTab(t) { S.activeBookTab = t; persist(); renderBooks(); }
 function cycleChapter(key) {
   const cur = S.bookProgress[key] || "";
   S.bookProgress[key] = cur === "" ? "inprogress" : cur === "inprogress" ? "done" : "";
